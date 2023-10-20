@@ -7,5 +7,6 @@ const host = process.env.HTTP_HOST || '127.0.0.1';
 const handler = createRouter()
   .get('/heartbeat', (req, res) => {
     res.end('OK');
-  })
+  }).handler();
+
 http.createServer(handler).listen(port, host);
