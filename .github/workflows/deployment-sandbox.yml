@@ -1,0 +1,38 @@
+name: Sandbox Deployment
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
+
+jobs:
+
+  converge:
+    name: Converge
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.gitlab.com
+          username: ${{ secrets.REGISTRY_USERNAME || '~~TOKENAUTH~~' }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Install werf
+        uses: werf/actions/install@v1.2
+
+      - name: Werf converge
+        run:
+          werf converge
+        env:
+          WERF_KUBECONFIG_BASE64: ${{ secrets.KUBE_CONFIG_BASE64_DATA }}
+          WERF_KUBE_CONTEXT: sandbox
+          WERF_ENV: ${{ github.head_ref || github.ref_name }}
+          WERF_SET_DOMAIN: env.DOMAIN=${{ github.head_ref || github.ref_name }}.${{ github.repository_owner }}.icncd.ru
+          WERF_REPO: registry.gitlab.com/${{ github.repository }}
+          WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}

@@ -1,0 +1,6 @@
+project: restexample
+configVersion: 1
+
+---
+image: app
+dockerfile: Dockerfile
